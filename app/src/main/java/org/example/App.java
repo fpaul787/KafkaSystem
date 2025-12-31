@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -21,11 +22,15 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class App {
+  private static final Logger logger = LoggerFactory.getLogger(App.class);
   private static final Random random = new Random();
       
   // Arrays of sample data
@@ -78,6 +83,42 @@ public class App {
         String.format(
             "Produced message to topic %s: key = %s value = %s", topic, key, value));
 
+    // closes the producer connection
+    producer.close();
+  }
+
+  public static void produceCarPurchase(String topic, Properties config, CarPurchase carPurchase) throws InterruptedException {
+    // sets the message serializers
+    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+    Producer<String, CarPurchase> producer = new KafkaProducer<>(config);
+
+
+    ProducerRecord<String, CarPurchase> record = new ProducerRecord<>(
+      topic,
+      carPurchase.getTransactionId(),
+      carPurchase
+    );
+
+    // Send message synchronously
+    try {
+        RecordMetadata metadata = producer.send(record).get();
+        logger.info("Transaction sent - ID: {}, Customer: {}, Car: {} {} {}, Price: ${}, Partition: {}, Offset: {}", 
+            carPurchase.getTransactionId(),
+            carPurchase.getCustomerName(),
+            carPurchase.getYear(),
+            carPurchase.getMake(),
+            carPurchase.getModel(),
+            carPurchase.getPurchasePrice(),
+            metadata.partition(),
+            metadata.offset());
+    } catch (ExecutionException | InterruptedException e) {
+        logger.error("Error sending transaction: {}", carPurchase.getTransactionId(), e);
+        Thread.currentThread().interrupt();
+    }
+    
+    Thread.sleep(100);
+    
     // closes the producer connection
     producer.close();
   }
