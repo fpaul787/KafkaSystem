@@ -23,6 +23,9 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
+
+    implementation("org.slf4j:slf4j-nop:1.7.36")
+    implementation("org.apache.kafka:kafka-clients:4.0.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
