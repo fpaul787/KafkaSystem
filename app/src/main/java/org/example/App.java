@@ -46,8 +46,9 @@ public class App {
   private static final String[] paymentMethods = { "Cash", "Finance", "Lease", "Credit Card", "Bank Transfer" };
   private static final String[] dealerships = { "AutoMax", "CarWorld", "Premier Motors", "City Auto", "Elite Cars",
       "Metro Motors", "Sunshine Auto", "Victory Motors" };
+  private static final String[] salesReps = { "SR1001", "SR1002", "SR1003", "SR1004", "SR1005", "SR1006", "SR1007", "SR1008" };
 
-  private static final int NUM_CAR_PURCHASES = 1;
+  private static final int NUM_CAR_PURCHASES = 100;
   public static void main(String[] args) throws InterruptedException, ExecutionException {
     try {
       String topic = "topic_car_purchases";
@@ -157,7 +158,7 @@ public class App {
 
     String dealershipId = "DEALER-" + String.format("%03d", random.nextInt(999));
     String dealershipName = dealerships[random.nextInt(dealerships.length)];
-    String salesRepId = "SALES-" + String.format("%04d", random.nextInt(9999));
+    String salesRepId = salesReps[random.nextInt(salesReps.length)];
 
     LocalDateTime purchaseDate = LocalDateTime.now().minusDays(random.nextInt(365)); // Within last year
 
