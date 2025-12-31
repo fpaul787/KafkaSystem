@@ -24,8 +24,10 @@ dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
 
-    implementation("org.slf4j:slf4j-nop:1.7.36")
+    implementation("org.slf4j:slf4j-simple:1.7.36")
     implementation("org.apache.kafka:kafka-clients:4.0.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
