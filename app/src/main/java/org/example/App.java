@@ -53,13 +53,11 @@ public class App {
       String topic = "topic_car_purchases";
       final Properties config = readConfig("client.properties");
 
-      // produce(topic, config);
       CarPurchase[] carPurchases = new CarPurchase[NUM_CAR_PURCHASES];
       for (int i = 0; i < carPurchases.length; i++) {
         carPurchases[i] = generateRandom();
       }
       produceCarPurchase(topic, config, carPurchases);
-      // consume(topic, config);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -78,28 +76,6 @@ public class App {
     }
 
     return config;
-  }
-
-  public static void produce(String topic, Properties config) throws InterruptedException, ExecutionException {
-    // sets the message serializers
-    config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-    // props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, CarPurchaseSerializer.class.getName());
-
-    // creates a new producer instance and sends a sample message to the topic
-    String key = "key";
-    String value = "value";
-    Producer<String, String> producer = new KafkaProducer<>(config);
-    ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
-    RecordMetadata metadata = producer.send(record).get();
-    logger.info("Message sent to topic {} partition {} with offset {}", metadata.topic(),
-        metadata.partition(), metadata.offset());
-    System.out.println(
-        String.format(
-            "Produced message to topic %s: key = %s value = %s", topic, key, value));
-
-    // closes the producer connection
-    producer.close();
   }
 
   public static void produceCarPurchase(String topic, Properties config, CarPurchase[] carPurchases) throws InterruptedException {
