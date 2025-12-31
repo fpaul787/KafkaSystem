@@ -3,11 +3,15 @@ package org.example;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.Random;
+import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -20,7 +24,19 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
+
 public class App {
+  private static final Random random = new Random();
+      
+  // Arrays of sample data
+  private static final String[] firstNames = {"John", "Jane", "Michael", "Emily", "David", "Sarah", "James", "Jessica", "Robert", "Ashley"};
+  private static final String[] lastNames = {"Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"};
+  private static final String[] makes = {"Toyota", "Honda", "Ford", "Chevrolet", "Nissan", "BMW", "Mercedes", "Audi", "Hyundai", "Mazda"};
+  private static final String[] models = {"Camry", "Civic", "F-150", "Silverado", "Altima", "X3", "C-Class", "A4", "Elantra", "CX-5"};
+  private static final String[] colors = {"White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Brown", "Gold", "Orange"};
+  private static final String[] paymentMethods = {"Cash", "Finance", "Lease", "Credit Card", "Bank Transfer"};
+  private static final String[] dealerships = {"AutoMax", "CarWorld", "Premier Motors", "City Auto", "Elite Cars", "Metro Motors", "Sunshine Auto", "Victory Motors"};
+  
   public static void main(String[] args) {
     try {
       String topic = "topic_streaming";
@@ -86,5 +102,47 @@ public class App {
                 "Consumed message from topic %s: key = %s value = %s", topic, record.key(), record.value()));
       }
     }
+  }
+
+  // Static method to generate a random car purchase
+  public static CarPurchase generateRandom() {
+      // Generate random data
+      String transactionId = UUID.randomUUID().toString();
+      String customerId = "CUST-" + String.format("%05d", random.nextInt(10000));
+      String firstName = firstNames[random.nextInt(firstNames.length)];
+      String lastName = lastNames[random.nextInt(lastNames.length)];
+      String customerName = firstName + " " + lastName;
+      String customerEmail = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@email.com";
+
+      String make = makes[random.nextInt(makes.length)];
+      String model = models[random.nextInt(models.length)];
+      int year = 2015 + random.nextInt(10); // Year between 2015 and 2024
+      String color = colors[random.nextInt(colors.length)];
+      String vin = generateVIN(random);
+
+      BigDecimal purchasePrice = new BigDecimal(15000 + random.nextInt(85000)); // Price between $15,000 and $100,000
+      String paymentMethod = paymentMethods[random.nextInt(paymentMethods.length)];
+
+      String dealershipId = "DEALER-" + String.format("%03d", random.nextInt(999));
+      String dealershipName = dealerships[random.nextInt(dealerships.length)];
+      String salesRepId = "SALES-" + String.format("%04d", random.nextInt(9999));
+
+      LocalDateTime purchaseDate = LocalDateTime.now().minusDays(random.nextInt(365)); // Within last year
+      
+      return new CarPurchase(
+          transactionId, customerId, customerName, customerEmail,
+          vin, make, model, year, color, purchasePrice,
+          dealershipId, dealershipName, paymentMethod,
+          purchaseDate, salesRepId
+      );
+  }
+    
+  private static String generateVIN(Random random) {
+      StringBuilder vin = new StringBuilder();
+      String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      for (int i = 0; i < 17; i++) {
+          vin.append(chars.charAt(random.nextInt(chars.length())));
+      }
+      return vin.toString();
   }
 }
